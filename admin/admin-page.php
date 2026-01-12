@@ -61,7 +61,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div id="idtt-saved-palettes-list" class="idtt-saved-palettes-list">
                         <div class="idtt-saved-empty"><?php echo esc_html__( 'No saved palettes yet', 'image-to-design-tokens' ); ?></div>
                     </div>
-                    <button type="button" class="idtt-btn idtt-btn-secondary" id="idtt-save-palette-btn" disabled>
+                    <button type="button" class="idtt-btn idtt-btn-primary" id="idtt-save-palette-btn" disabled>
                         <?php echo esc_html__( 'Save Current Palette', 'image-to-design-tokens' ); ?>
                     </button>
                 </div>
@@ -85,7 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <!-- Export Buttons (hidden until palette generated) -->
                 <div class="idtt-export-actions" id="idtt-export-actions" style="display: none;">
-                    <button type="button" class="idtt-btn idtt-btn-secondary" id="idtt-copy-css-btn">
+                    <button type="button" class="idtt-btn idtt-btn-primary" id="idtt-copy-css-btn">
                         <?php echo esc_html__( 'Copy CSS Variables', 'image-to-design-tokens' ); ?>
                     </button>
                 </div>
