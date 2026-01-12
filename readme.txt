@@ -8,31 +8,31 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Extract color palettes from images and generate accessible design tokens for light and dark modes. All processing happens in your browser.
+Extract color palettes from images and generate design tokens for light and dark modes. All processing happens in your browser.
 
 == Description ==
 
-Image to Design Tokens is a privacy-focused tool for designers and developers who need to extract color palettes from images and generate accessible design system tokens.
+Image to Design Tokens is a privacy-focused tool for designers and developers who need to extract color palettes from images and generate design system tokens.
 
-**Key Features:**
+= Key Features =
 
-* **Browser-Only Processing** - Your images never leave your computer. All color extraction happens locally using the Canvas API.
-* **Accessible Design Tokens** - Automatically generates light and dark mode tokens with WCAG-compliant contrast ratios.
-* **Smart Color Extraction** - Uses median cut algorithm with vibrant color recovery to ensure brand colors are preserved.
-* **Live Preview** - See how your tokens will look in a real UI before exporting.
-* **Contrast Checking** - Built-in WCAG contrast ratio verification for all token combinations.
-* **Export Options** - Copy CSS variables with a single click.
-* **Save Palettes** - Store up to 5 palettes locally for quick access (uses browser localStorage).
+* Browser-Only Processing – Images are processed locally in the browser using the Canvas API and are never uploaded to a server.
+* Light and Dark Mode Tokens – Generates design tokens for both light and dark modes with contrast ratio indicators.
+* Color Extraction – Uses the median cut algorithm with a bias toward preserving saturated accent colors.
+* Live Preview – Preview how generated tokens appear in a sample user interface before exporting.
+* Contrast Checking – Displays WCAG contrast ratio calculations to help evaluate accessibility.
+* Export – Copy generated CSS custom properties to the clipboard.
+* Save Palettes – Store up to 5 palettes locally using browser localStorage.
 
-**How It Works:**
+= How It Works =
 
-1. Upload or drag-and-drop an image (screenshot, logo, or any visual)
+1. Upload or drag-and-drop an image (such as a screenshot, logo, or visual reference)
 2. The tool extracts dominant colors using the median cut algorithm
 3. Design tokens are generated for both light and dark modes
-4. Review contrast checks and preview your design system
-5. Export as CSS custom properties
+4. Review contrast ratio indicators and preview the tokens
+5. Copy the generated CSS custom properties
 
-**Generated Tokens:**
+= Generated Tokens =
 
 * Background (bg)
 * Surface
@@ -40,20 +40,20 @@ Image to Design Tokens is a privacy-focused tool for designers and developers wh
 * Text
 * Heading
 * Muted Text
-* Primary (accent/brand color)
-* On Primary (text on primary)
+* Primary (accent or brand color)
+* On Primary (text displayed on the primary color)
 
 == Installation ==
 
 1. Upload the plugin files to `/wp-content/plugins/image-to-design-tokens/`
-2. Activate the plugin through the 'Plugins' menu in WordPress
+2. Activate the plugin through the Plugins menu in WordPress
 3. Navigate to Tools > Design Tokens to use the tool
 
 == Frequently Asked Questions ==
 
 = Does this plugin upload my images to a server? =
 
-No. All image processing happens entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server.
+No. All image processing happens entirely in your browser using the HTML5 Canvas API. Images are never uploaded to any server.
 
 = What image formats are supported? =
 
@@ -61,35 +61,41 @@ JPEG, PNG, and WebP images are supported.
 
 = How does the color extraction work? =
 
-The plugin uses the median cut algorithm to quantize colors, combined with vibrant color recovery to ensure saturated brand colors are preserved even when they occupy a small area of the image.
+The plugin uses the median cut algorithm to quantize colors, with adjustments to help preserve saturated colors even when they occupy a small area of the image.
 
-= What do the contrast badges mean? =
+= What do the contrast indicators mean? =
 
-* **PASS** - Meets or exceeds WCAG AA requirements
-* **AA** - Meets minimum requirements but not ideal
-* **FAIL** - Does not meet accessibility requirements
+The plugin calculates contrast ratios based on WCAG guidelines:
+
+* PASS – Indicates the contrast ratio meets WCAG AA contrast recommendations (4.5:1 for normal text)
+* MEETS MINIMUM – Indicates the contrast ratio is at the minimum WCAG AA threshold
+* FAIL – Indicates the contrast ratio is below WCAG AA contrast recommendations
+
+These indicators are provided as a reference tool only. Final accessibility compliance depends on how colors are implemented in a specific design or context.
 
 = Can I lock a specific primary color? =
 
-Yes! Simply click any swatch in the extracted palette to lock it as the primary color. Click it again to unlock. This is useful when you want to preserve a specific brand color.
+Yes. Click any swatch in the extracted palette to lock it as the primary color. Click it again to unlock.
 
 = Where are saved palettes stored? =
 
-Saved palettes are stored in your browser's localStorage. They persist between sessions but are not synced across devices or browsers.
+Saved palettes are stored in your browser’s localStorage. They persist between sessions but are not synced across devices or browsers.
+
+Clearing browser data or localStorage will remove any saved palettes.
 
 = Does this plugin require an account? =
 
-No. This plugin works entirely standalone with no account, registration, or login required.
+No. The plugin works entirely standalone and does not require an account, registration, or login.
 
 = Does this plugin track users or collect data? =
 
-No. This plugin does not track users, collect analytics, or send any data externally. All processing happens locally in your browser.
+No. The plugin does not track users, collect analytics, or transmit data externally. All processing happens locally in the browser.
 
 == Screenshots ==
 
 1. Main interface showing color extraction and token generation
-2. Light mode preview with contrast checks
-3. Dark mode preview with contrast checks
+2. Light mode preview with contrast indicators
+3. Dark mode preview with contrast indicators
 4. Saved palettes panel
 
 == Changelog ==
@@ -98,8 +104,8 @@ No. This plugin does not track users, collect analytics, or send any data extern
 * Initial release
 * Browser-only image color extraction
 * Light and dark mode token generation
-* WCAG contrast checking
-* CSS Variables export
+* Contrast ratio indicators
+* CSS custom properties export
 * Local palette storage (up to 5)
 
 == Upgrade Notice ==
@@ -107,6 +113,6 @@ No. This plugin does not track users, collect analytics, or send any data extern
 = 1.0.0 =
 Initial release of Image to Design Tokens.
 
-== Works Well With ==
+== Additional Information ==
 
-* **Promptless WP** - Apply your generated design tokens to production-ready page layouts automatically. Learn more at promptlesswp.com
+This plugin can be used alongside other tools. For example, Promptless WP can consume exported design tokens as part of a broader page layout workflow.
