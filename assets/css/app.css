@@ -1,0 +1,779 @@
+/**
+ * Image to Design Tokens - App Styles
+ * Scoped under .idtt-app to avoid WordPress admin conflicts
+ */
+
+/* ============================================
+ * CSS VARIABLES
+ * ============================================ */
+.idtt-app {
+  --idtt-bg: #f5f5f7;
+  --idtt-surface: #ffffff;
+  --idtt-border: #1d1d1f;
+  --idtt-border-light: #e0e0e0;
+  --idtt-text: #1d1d1f;
+  --idtt-muted: #4a4a4f;
+  --idtt-primary: #6366f1;
+  --idtt-radius: 8px;
+}
+
+/* ============================================
+ * BASE STYLES
+ * ============================================ */
+.idtt-app {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  color: var(--idtt-text);
+  line-height: 1.5;
+  max-width: 1400px;
+  margin: 20px 0;
+}
+
+.idtt-app *,
+.idtt-app *::before,
+.idtt-app *::after {
+  box-sizing: border-box;
+}
+
+.idtt-app h1,
+.idtt-app h2,
+.idtt-app h3 {
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.idtt-app h1 { font-size: 28px; }
+.idtt-app h2 { font-size: 20px; }
+.idtt-app h3 { font-size: 16px; }
+
+/* ============================================
+ * LAYOUT
+ * ============================================ */
+.idtt-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.idtt-header p {
+  color: var(--idtt-muted);
+  margin: 8px 0 0 0;
+}
+
+.idtt-main-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .idtt-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+ * PANEL STYLES
+ * ============================================ */
+.idtt-panel {
+  background: var(--idtt-surface);
+  border-radius: var(--idtt-radius);
+  padding: 24px;
+  border: 2px solid var(--idtt-border);
+}
+
+.idtt-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--idtt-text);
+  margin-bottom: 16px;
+}
+
+/* ============================================
+ * UPLOAD SECTION
+ * ============================================ */
+.idtt-upload-zone {
+  border: 2px dashed var(--idtt-border-light);
+  border-radius: var(--idtt-radius);
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.idtt-upload-zone:hover {
+  border-color: var(--idtt-primary);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.idtt-upload-zone.dragover {
+  border-color: var(--idtt-primary);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.idtt-upload-icon {
+  margin-bottom: 8px;
+  color: var(--idtt-muted);
+}
+
+.idtt-upload-text {
+  font-size: 14px;
+  color: var(--idtt-muted);
+}
+
+.idtt-thumbnail-container {
+  display: none;
+  margin-bottom: 16px;
+}
+
+.idtt-thumbnail-container.visible {
+  display: block;
+}
+
+.idtt-thumbnail {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: var(--idtt-radius);
+  border: 2px solid var(--idtt-border);
+}
+
+/* ============================================
+ * CONTROLS
+ * ============================================ */
+.idtt-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.idtt-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--idtt-border-light);
+}
+
+.idtt-toggle-label {
+  font-size: 14px;
+}
+
+.idtt-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--idtt-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.idtt-toggle.active {
+  background: var(--idtt-primary);
+}
+
+.idtt-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.idtt-toggle.active::after {
+  transform: translateX(20px);
+}
+
+.idtt-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.idtt-btn-primary {
+  background: var(--idtt-primary);
+  color: white;
+  border: 2px solid var(--idtt-border);
+}
+
+.idtt-btn-primary:hover {
+  background: #4f46e5;
+}
+
+.idtt-btn-primary:disabled {
+  background: var(--idtt-border-light);
+  color: var(--idtt-muted);
+  cursor: not-allowed;
+  border-color: var(--idtt-border-light);
+}
+
+.idtt-btn-secondary {
+  background: var(--idtt-surface);
+  color: var(--idtt-text);
+  border: 2px solid var(--idtt-border);
+}
+
+.idtt-btn-secondary:hover {
+  background: var(--idtt-bg);
+}
+
+.idtt-btn-secondary:disabled {
+  background: var(--idtt-surface);
+  color: var(--idtt-muted);
+  cursor: not-allowed;
+  border-color: var(--idtt-border-light);
+}
+
+/* Save Palette Button - Full Width */
+#idtt-save-palette-btn {
+  width: 100%;
+  text-align: center;
+}
+
+/* ============================================
+ * EXTRACTED PALETTE - Neo Brutalist Grid
+ * ============================================ */
+.idtt-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.idtt-palette-swatch {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  border: 2.5px solid var(--idtt-border);
+  transition: all 0.15s ease;
+}
+
+.idtt-palette-swatch:hover {
+  transform: scale(1.08);
+  z-index: 10;
+}
+
+.idtt-palette-swatch.locked {
+  transform: scale(1.08);
+  z-index: 20;
+  border-color: var(--idtt-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4);
+}
+
+/* White check icon for dark backgrounds */
+.idtt-palette-swatch.locked.dark-bg::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='9 12 11.5 14.5 16 10'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+}
+
+/* Dark check icon for light backgrounds */
+.idtt-palette-swatch.locked.light-bg::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='9 12 11.5 14.5 16 10'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+}
+
+/* Hide hex labels - removed for cleaner look */
+.idtt-swatch-label {
+  display: none;
+}
+
+.idtt-palette-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px;
+  color: var(--idtt-muted);
+  font-size: 14px;
+}
+
+.idtt-palette-hint {
+  font-size: 12px;
+  color: var(--idtt-muted);
+  margin: 0;
+  text-align: center;
+}
+
+/* ============================================
+ * SAVED PALETTES - Neo Brutalist Style
+ * ============================================ */
+.idtt-saved-palettes-list {
+  margin-bottom: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.idtt-saved-empty {
+  text-align: center;
+  padding: 16px;
+  color: var(--idtt-muted);
+  font-size: 13px;
+}
+
+.idtt-saved-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--idtt-radius);
+  margin-bottom: 10px;
+  background: var(--idtt-surface);
+  border: 2px solid var(--idtt-border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.idtt-saved-item:hover {
+  background: var(--idtt-bg);
+}
+
+.idtt-saved-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.idtt-saved-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--idtt-text);
+}
+
+.idtt-saved-item-date {
+  font-size: 12px;
+  color: var(--idtt-muted);
+  margin-top: 2px;
+}
+
+.idtt-saved-item-colors {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+}
+
+.idtt-saved-item-color {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--idtt-border);
+  margin-left: -6px;
+}
+
+.idtt-saved-item-color:first-child {
+  margin-left: 0;
+}
+
+.idtt-saved-item-delete {
+  margin-left: 14px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--idtt-muted);
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.idtt-saved-item-delete:hover {
+  color: #dc3545;
+}
+
+/* ============================================
+ * PREVIEW SECTION
+ * ============================================ */
+.idtt-preview-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .idtt-preview-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.idtt-preview-card {
+  border-radius: var(--idtt-radius);
+  overflow: hidden;
+  border: 2px solid var(--idtt-border);
+}
+
+.idtt-preview-header {
+  padding: 12px 16px;
+  background: var(--idtt-surface);
+  border-bottom: 2px solid var(--idtt-border);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.idtt-preview-section {
+  padding: 32px;
+}
+
+.idtt-preview-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.idtt-preview-heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.idtt-preview-body {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.idtt-preview-button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  margin-bottom: 24px;
+}
+
+.idtt-preview-feature-card {
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.idtt-preview-feature-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.idtt-preview-feature-text {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* ============================================
+ * TOKEN TABLE - Neo Brutalist Style
+ * ============================================ */
+.idtt-token-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  margin-top: 20px;
+  border: 2px solid var(--idtt-border);
+  border-radius: var(--idtt-radius);
+  overflow: hidden;
+}
+
+.idtt-token-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--idtt-bg);
+  border-bottom: 2px solid var(--idtt-border);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--idtt-muted);
+}
+
+.idtt-token-table td {
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--idtt-border-light);
+  vertical-align: middle;
+  background: var(--idtt-surface);
+}
+
+.idtt-token-table tr:last-child td {
+  border-bottom: none;
+}
+
+.idtt-token-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 2px solid var(--idtt-border);
+}
+
+.idtt-token-hex {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.idtt-copy-btn {
+  min-width: 72px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--idtt-surface);
+  border: 2px solid var(--idtt-border);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+}
+
+.idtt-copy-btn:hover {
+  background: var(--idtt-bg);
+}
+
+/* ============================================
+ * CONTRAST CHECKS - Neo Brutalist Style
+ * ============================================ */
+.idtt-contrast-checks {
+  margin-top: 20px;
+  border: 2px solid var(--idtt-border);
+  border-radius: var(--idtt-radius);
+  overflow: hidden;
+}
+
+.idtt-contrast-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--idtt-border-light);
+  font-size: 13px;
+  background: var(--idtt-surface);
+}
+
+.idtt-contrast-row:last-child {
+  border-bottom: none;
+}
+
+.idtt-contrast-label {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--idtt-text);
+}
+
+.idtt-contrast-value {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.idtt-contrast-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid transparent;
+}
+
+.idtt-contrast-badge.pass {
+  background: #d4edda;
+  color: #155724;
+  border-color: #155724;
+}
+
+.idtt-contrast-badge.fail {
+  background: #f8d7da;
+  color: #721c24;
+  border-color: #721c24;
+}
+
+.idtt-contrast-badge.warn {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* ============================================
+ * WARNING MESSAGE
+ * ============================================ */
+.idtt-warning-banner {
+  display: none;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #856404;
+}
+
+.idtt-warning-banner.visible {
+  display: block;
+}
+
+/* ============================================
+ * EMPTY STATE
+ * ============================================ */
+.idtt-empty-state {
+  text-align: center;
+  padding: 64px 32px;
+  color: var(--idtt-muted);
+}
+
+.idtt-empty-state-icon {
+  margin-bottom: 16px;
+}
+
+/* ============================================
+ * EXPORT ACTIONS
+ * ============================================ */
+.idtt-export-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid var(--idtt-border);
+}
+
+/* ============================================
+ * PROMPTLESS CTA - Neo Brutalist Style
+ * ============================================ */
+.idtt-promptless-cta {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--idtt-surface);
+  border: 2px solid var(--idtt-border);
+  border-radius: var(--idtt-radius);
+  text-align: center;
+}
+
+.idtt-promptless-cta p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--idtt-text);
+}
+
+.idtt-promptless-cta a {
+  color: var(--idtt-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.idtt-promptless-cta a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+ * SAVE PALETTE MODAL
+ * ============================================ */
+.idtt-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  backdrop-filter: blur(4px);
+}
+
+.idtt-modal {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  border: 2px solid #1d1d1f;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.idtt-modal h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.idtt-modal-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #1d1d1f;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  color: #1d1d1f;
+  font-family: inherit;
+}
+
+.idtt-modal-input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.idtt-modal-input::placeholder {
+  color: #6e6e73;
+}
+
+.idtt-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.idtt-modal-actions .idtt-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid #1d1d1f;
+}
+
+.idtt-modal-actions .idtt-btn-secondary {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+.idtt-modal-actions .idtt-btn-secondary:hover {
+  background: #f5f5f7;
+}
+
+.idtt-modal-actions .idtt-btn-primary {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.idtt-modal-actions .idtt-btn-primary:hover {
+  background: #4f46e5;
+}

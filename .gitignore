@@ -1,0 +1,57 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Node.js (if used for build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build artifacts
+/dist/
+/build/
+
+# Test files
+/test/
+/tests/
+*.test.js
+*.spec.js
+
+# Development files
+.env
+.env.local
+.env.*.local
+*.log
+
+# WordPress specific
+wp-config.php
+debug.log
+
+# Composer (if used)
+/vendor/
+composer.lock
+
+# Documentation build
+/docs/_build/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
