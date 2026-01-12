@@ -118,6 +118,94 @@
     );
   }
 
+  /**
+   * Filter palette for valid light mode background candidates
+   * Requirements:
+   * - High luminance (light color)
+   * - Must meet WCAG AA contrast with ALL text tokens (heading, text, mutedText)
+   * @param {Array} palette - Analyzed palette with luminance/saturation
+   * @param {Object} lightTokens - Generated light mode tokens to check contrast against
+   * @returns {Array} Valid light mode background candidates
+   */
+  function filterLightBgCandidates(palette, lightTokens) {
+    const MIN_LUMINANCE = 0.65;
+    const MIN_CONTRAST = 4.5;
+    const MUTED_MIN_CONTRAST = 3.0; // mutedText can use lower threshold per WCAG
+
+    // Get actual text colors from tokens
+    const headingRgb = lightTokens?.heading ? hexToRgb(lightTokens.heading) : null;
+    const textRgb = lightTokens?.text ? hexToRgb(lightTokens.text) : null;
+    const mutedRgb = lightTokens?.mutedText ? hexToRgb(lightTokens.mutedText) : null;
+
+    // Fallback to reference dark text if tokens not available
+    const fallbackText = { r: 29, g: 29, b: 31 }; // #1d1d1f
+
+    return palette.filter(c => {
+      if (c.luminance < MIN_LUMINANCE) {
+        return false;
+      }
+
+      const bgRgb = { r: c.r, g: c.g, b: c.b };
+
+      // Check ALL text tokens pass contrast on this bg
+      if (headingRgb && getContrastRatio(headingRgb, bgRgb) < MIN_CONTRAST) return false;
+      if (textRgb && getContrastRatio(textRgb, bgRgb) < MIN_CONTRAST) return false;
+      if (mutedRgb && getContrastRatio(mutedRgb, bgRgb) < MUTED_MIN_CONTRAST) return false;
+
+      // If no tokens available, fall back to generic dark text check
+      if (!headingRgb && !textRgb && !mutedRgb) {
+        const contrast = getContrastRatio(bgRgb, fallbackText);
+        return contrast >= MIN_CONTRAST;
+      }
+
+      return true;
+    }).sort((a, b) => b.luminance - a.luminance);
+  }
+
+  /**
+   * Filter palette for valid dark mode background candidates
+   * Requirements:
+   * - Low luminance (dark color)
+   * - Must meet WCAG AA contrast with ALL text tokens (heading, text, mutedText)
+   * @param {Array} palette - Analyzed palette with luminance/saturation
+   * @param {Object} darkTokens - Generated dark mode tokens to check contrast against
+   * @returns {Array} Valid dark mode background candidates
+   */
+  function filterDarkBgCandidates(palette, darkTokens) {
+    const MAX_LUMINANCE = 0.15;
+    const MIN_CONTRAST = 4.5;
+    const MUTED_MIN_CONTRAST = 3.0; // mutedText can use lower threshold per WCAG
+
+    // Get actual text colors from tokens
+    const headingRgb = darkTokens?.heading ? hexToRgb(darkTokens.heading) : null;
+    const textRgb = darkTokens?.text ? hexToRgb(darkTokens.text) : null;
+    const mutedRgb = darkTokens?.mutedText ? hexToRgb(darkTokens.mutedText) : null;
+
+    // Fallback to reference light text if tokens not available
+    const fallbackText = { r: 245, g: 245, b: 247 }; // #f5f5f7
+
+    return palette.filter(c => {
+      if (c.luminance > MAX_LUMINANCE) {
+        return false;
+      }
+
+      const bgRgb = { r: c.r, g: c.g, b: c.b };
+
+      // Check ALL text tokens pass contrast on this bg
+      if (headingRgb && getContrastRatio(headingRgb, bgRgb) < MIN_CONTRAST) return false;
+      if (textRgb && getContrastRatio(textRgb, bgRgb) < MIN_CONTRAST) return false;
+      if (mutedRgb && getContrastRatio(mutedRgb, bgRgb) < MUTED_MIN_CONTRAST) return false;
+
+      // If no tokens available, fall back to generic light text check
+      if (!headingRgb && !textRgb && !mutedRgb) {
+        const contrast = getContrastRatio(bgRgb, fallbackText);
+        return contrast >= MIN_CONTRAST;
+      }
+
+      return true;
+    }).sort((a, b) => a.luminance - b.luminance);
+  }
+
   // ============================================
   // MEDIAN CUT ALGORITHM
   // ============================================
@@ -437,7 +525,7 @@
   /**
    * Generate design tokens from palette
    */
-  function generateTokens(palette, lockedPrimary = null) {
+  function generateTokens(palette, lockedPrimary = null, lockedLightBg = null, lockedDarkBg = null) {
     const warnings = [];
 
     const analyzed = palette.map(c => ({
@@ -485,8 +573,25 @@
     // ============================================
     const lightTokens = {};
 
-    // Relaxed: luminance > 0.75 (was 0.85), saturation < 0.20 (was 0.15)
-    const lightBgCandidate = findBest(c => c.luminance > 0.75 && c.saturation < 0.20);
+    // Use locked light background if set, otherwise use algorithm
+    let lightBgCandidate = null;
+    if (lockedLightBg) {
+      lightBgCandidate = analyzed.find(c => c.hex.toLowerCase() === lockedLightBg.toLowerCase());
+      if (!lightBgCandidate) {
+        const rgb = hexToRgb(lockedLightBg);
+        if (rgb) {
+          lightBgCandidate = {
+            ...rgb,
+            hex: lockedLightBg,
+            luminance: getLuminance(rgb.r, rgb.g, rgb.b),
+            saturation: getSaturation(rgb.r, rgb.g, rgb.b)
+          };
+        }
+      }
+    } else {
+      // Relaxed: luminance > 0.75 (was 0.85), saturation < 0.20 (was 0.15)
+      lightBgCandidate = findBest(c => c.luminance > 0.75 && c.saturation < 0.20);
+    }
     lightTokens.bg = useColor(lightBgCandidate, '#f7f7f7');
 
     const lightBgLuminance = lightTokens.bg ?
@@ -602,6 +707,57 @@
       '#555555',  // Darker fallback for better contrast
       '#444444'   // Even darker fallback
     );
+
+    // VALIDATION: Ensure bg passes contrast with all text tokens
+    // This fixes the chicken-and-egg problem where bg is selected before text tokens exist
+    const BG_MIN_CONTRAST = 4.5;
+    const BG_MUTED_MIN_CONTRAST = 3.0;
+
+    const lightBgRgb = hexToRgb(lightTokens.bg);
+    let lightBgNeedsReplacement = false;
+
+    if (lightBgRgb && !lockedLightBg) {
+      const headingRgbForBg = hexToRgb(lightTokens.heading);
+      const textRgbForBg = hexToRgb(lightTokens.text);
+      const mutedRgbForBg = hexToRgb(lightTokens.mutedText);
+
+      if (headingRgbForBg && getContrastRatio(headingRgbForBg, lightBgRgb) < BG_MIN_CONTRAST) {
+        lightBgNeedsReplacement = true;
+      }
+      if (textRgbForBg && getContrastRatio(textRgbForBg, lightBgRgb) < BG_MIN_CONTRAST) {
+        lightBgNeedsReplacement = true;
+      }
+      if (mutedRgbForBg && getContrastRatio(mutedRgbForBg, lightBgRgb) < BG_MUTED_MIN_CONTRAST) {
+        lightBgNeedsReplacement = true;
+      }
+    }
+
+    // If bg fails contrast, find a replacement from palette or use fallback
+    if (lightBgNeedsReplacement) {
+      const headingRgbForBg = hexToRgb(lightTokens.heading);
+      const textRgbForBg = hexToRgb(lightTokens.text);
+      const mutedRgbForBg = hexToRgb(lightTokens.mutedText);
+
+      // Try to find a palette color that passes all contrast checks
+      // Sort by luminance descending to prefer lighter backgrounds
+      const validLightBgCandidates = analyzed
+        .filter(c => {
+          if (c.luminance < 0.65) return false;
+          const bgRgb = { r: c.r, g: c.g, b: c.b };
+          if (headingRgbForBg && getContrastRatio(headingRgbForBg, bgRgb) < BG_MIN_CONTRAST) return false;
+          if (textRgbForBg && getContrastRatio(textRgbForBg, bgRgb) < BG_MIN_CONTRAST) return false;
+          if (mutedRgbForBg && getContrastRatio(mutedRgbForBg, bgRgb) < BG_MUTED_MIN_CONTRAST) return false;
+          return true;
+        })
+        .sort((a, b) => b.luminance - a.luminance);
+
+      if (validLightBgCandidates.length > 0) {
+        lightTokens.bg = validLightBgCandidates[0].hex;
+      } else {
+        // Ultimate fallback: use safe white/near-white
+        lightTokens.bg = '#f7f7f7';
+      }
+    }
 
     // Primary color selection for light mode
     let lightPrimary = null;
@@ -771,8 +927,25 @@
     // ============================================
     const darkTokens = {};
 
-    // Relaxed: luminance < 0.06 (was 0.03), saturation < 0.20 (was 0.15)
-    const darkBgCandidate = findBest(c => c.luminance < 0.06 && c.saturation < 0.20);
+    // Use locked dark background if set, otherwise use algorithm
+    let darkBgCandidate = null;
+    if (lockedDarkBg) {
+      darkBgCandidate = analyzed.find(c => c.hex.toLowerCase() === lockedDarkBg.toLowerCase());
+      if (!darkBgCandidate) {
+        const rgb = hexToRgb(lockedDarkBg);
+        if (rgb) {
+          darkBgCandidate = {
+            ...rgb,
+            hex: lockedDarkBg,
+            luminance: getLuminance(rgb.r, rgb.g, rgb.b),
+            saturation: getSaturation(rgb.r, rgb.g, rgb.b)
+          };
+        }
+      }
+    } else {
+      // Relaxed: luminance < 0.06 (was 0.03), saturation < 0.20 (was 0.15)
+      darkBgCandidate = findBest(c => c.luminance < 0.06 && c.saturation < 0.20);
+    }
     darkTokens.bg = useColor(darkBgCandidate, '#0b0b0b');
 
     const bgLuminance = darkTokens.bg ?
@@ -888,6 +1061,56 @@
       '#d0d0d0',  // Lighter fallback for better contrast
       '#b8b8b8'   // Alternative fallback
     );
+
+    // VALIDATION: Ensure dark bg passes contrast with all text tokens
+    const DARK_BG_MIN_CONTRAST = 4.5;
+    const DARK_BG_MUTED_MIN_CONTRAST = 3.0;
+
+    const darkBgRgb = hexToRgb(darkTokens.bg);
+    let darkBgNeedsReplacement = false;
+
+    if (darkBgRgb && !lockedDarkBg) {
+      const darkHeadingRgbForBg = hexToRgb(darkTokens.heading);
+      const darkTextRgbForBg = hexToRgb(darkTokens.text);
+      const darkMutedRgbForBg = hexToRgb(darkTokens.mutedText);
+
+      if (darkHeadingRgbForBg && getContrastRatio(darkHeadingRgbForBg, darkBgRgb) < DARK_BG_MIN_CONTRAST) {
+        darkBgNeedsReplacement = true;
+      }
+      if (darkTextRgbForBg && getContrastRatio(darkTextRgbForBg, darkBgRgb) < DARK_BG_MIN_CONTRAST) {
+        darkBgNeedsReplacement = true;
+      }
+      if (darkMutedRgbForBg && getContrastRatio(darkMutedRgbForBg, darkBgRgb) < DARK_BG_MUTED_MIN_CONTRAST) {
+        darkBgNeedsReplacement = true;
+      }
+    }
+
+    // If dark bg fails contrast, find a replacement from palette or use fallback
+    if (darkBgNeedsReplacement) {
+      const darkHeadingRgbForBg = hexToRgb(darkTokens.heading);
+      const darkTextRgbForBg = hexToRgb(darkTokens.text);
+      const darkMutedRgbForBg = hexToRgb(darkTokens.mutedText);
+
+      // Try to find a palette color that passes all contrast checks
+      // Sort by luminance ascending to prefer darker backgrounds
+      const validDarkBgCandidates = analyzed
+        .filter(c => {
+          if (c.luminance > 0.15) return false;
+          const bgRgb = { r: c.r, g: c.g, b: c.b };
+          if (darkHeadingRgbForBg && getContrastRatio(darkHeadingRgbForBg, bgRgb) < DARK_BG_MIN_CONTRAST) return false;
+          if (darkTextRgbForBg && getContrastRatio(darkTextRgbForBg, bgRgb) < DARK_BG_MIN_CONTRAST) return false;
+          if (darkMutedRgbForBg && getContrastRatio(darkMutedRgbForBg, bgRgb) < DARK_BG_MUTED_MIN_CONTRAST) return false;
+          return true;
+        })
+        .sort((a, b) => a.luminance - b.luminance);
+
+      if (validDarkBgCandidates.length > 0) {
+        darkTokens.bg = validDarkBgCandidates[0].hex;
+      } else {
+        // Ultimate fallback: use safe near-black
+        darkTokens.bg = '#0b0b0b';
+      }
+    }
 
     // Primary color selection for dark mode
     let darkPrimary = null;
@@ -1160,6 +1383,8 @@
   let extractedPalette = [];
   let originalPixels = [];
   let lockedPrimaryHex = null;
+  let lockedLightBgHex = null;
+  let lockedDarkBgHex = null;
   let currentTokens = null;
 
   /**
@@ -1274,6 +1499,8 @@
   function loadPalette(saved) {
     extractedPalette = saved.palette;
     lockedPrimaryHex = null;
+    lockedLightBgHex = null;
+    lockedDarkBgHex = null;
 
     document.getElementById('idtt-save-palette-btn').disabled = false;
 
@@ -1292,12 +1519,49 @@
 
   /**
    * Calculate contrast checks for a token set
+   * Checks text contrast against both bg and surface since preview displays on both
    */
   function getContrastChecks(tokens) {
     const surface = hexToRgb(tokens.surface);
     const bg = hexToRgb(tokens.bg);
     const checks = [];
 
+    // Text vs Background checks (main preview area)
+    if (tokens.heading && bg) {
+      const headingRgb = hexToRgb(tokens.heading);
+      const ratio = getContrastRatio(headingRgb, bg);
+      checks.push({
+        label: 'heading/bg',
+        ratio: ratio,
+        required: 4.5,
+        pass: ratio >= 4.5
+      });
+    }
+
+    if (tokens.text && bg) {
+      const textRgb = hexToRgb(tokens.text);
+      const ratio = getContrastRatio(textRgb, bg);
+      checks.push({
+        label: 'text/bg',
+        ratio: ratio,
+        required: 4.5,
+        pass: ratio >= 4.5
+      });
+    }
+
+    if (tokens.mutedText && bg) {
+      const mutedRgb = hexToRgb(tokens.mutedText);
+      const ratio = getContrastRatio(mutedRgb, bg);
+      checks.push({
+        label: 'mutedText/bg',
+        ratio: ratio,
+        required: 3.0,
+        pass: ratio >= 3.0,
+        warn: ratio >= 3.0 && ratio < 4.5
+      });
+    }
+
+    // Text vs Surface checks (feature card area)
     if (tokens.heading && surface) {
       const headingRgb = hexToRgb(tokens.heading);
       const ratio = getContrastRatio(headingRgb, surface);
@@ -1320,18 +1584,7 @@
       });
     }
 
-    if (tokens.mutedText && surface) {
-      const mutedRgb = hexToRgb(tokens.mutedText);
-      const ratio = getContrastRatio(mutedRgb, surface);
-      checks.push({
-        label: 'mutedText/surface',
-        ratio: ratio,
-        required: 3.0,
-        pass: ratio >= 3.0,
-        warn: ratio >= 3.0 && ratio < 4.5
-      });
-    }
-
+    // Primary button contrast
     if (tokens.primary && tokens.onPrimary) {
       const primaryRgb = hexToRgb(tokens.primary);
       const onPrimaryRgb = hexToRgb(tokens.onPrimary);
@@ -1343,9 +1596,6 @@
         pass: ratio >= 4.5
       });
     }
-
-    // Note: Removed non-text contrast checks (primary/surface, border/surface, surface/bg)
-    // WCAG accessibility is primarily about TEXT contrast, not decorative elements
 
     return checks;
   }
@@ -1405,12 +1655,33 @@
   /**
    * Render preview section
    */
-  function renderPreview(tokens, mode) {
+  function renderPreview(tokens, mode, bgCandidates = [], lockedBgHex = null) {
     const checks = getContrastChecks(tokens);
     const modeLabel = mode === 'light' ? 'Light Mode' : 'Dark Mode';
     const modeIcon = mode === 'light'
       ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
       : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+    // Render background swatches if candidates available
+    const bgSwatchesHtml = bgCandidates.length > 0 ? `
+      <div class="idtt-bg-selector" data-mode="${mode}">
+        <div class="idtt-bg-selector-label">Background Options:</div>
+        <div class="idtt-bg-swatches">
+          ${bgCandidates.slice(0, 6).map(c => {
+            const isLocked = lockedBgHex && lockedBgHex.toLowerCase() === c.hex.toLowerCase();
+            const contrastClass = c.luminance > 0.5 ? 'light-bg' : 'dark-bg';
+            return `
+              <div class="idtt-bg-swatch ${isLocked ? 'locked' : ''} ${contrastClass}"
+                   data-hex="${c.hex}"
+                   data-mode="${mode}"
+                   style="background-color: ${c.hex}"
+                   title="${c.hex}">
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : '';
 
     return `
       <div class="idtt-preview-card">
@@ -1440,6 +1711,8 @@
             </div>
           </div>
         </div>
+
+        ${bgSwatchesHtml}
 
         <div style="padding: 16px; background: var(--idtt-surface);">
           <h3 style="margin-bottom: 12px;">Contrast Checks</h3>
@@ -1475,8 +1748,21 @@
       return;
     }
 
-    const result = generateTokens(extractedPalette, lockedPrimaryHex);
+    const result = generateTokens(extractedPalette, lockedPrimaryHex, lockedLightBgHex, lockedDarkBgHex);
     currentTokens = result;
+
+    // Analyze palette for background filtering
+    const analyzedPalette = extractedPalette.map(c => ({
+      ...c,
+      hex: rgbToHex(c.r, c.g, c.b),
+      luminance: getLuminance(c.r, c.g, c.b),
+      saturation: getSaturation(c.r, c.g, c.b)
+    }));
+
+    // Get valid background candidates for each mode
+    // Pass tokens so we can check contrast against actual text colors
+    const lightBgCandidates = filterLightBgCandidates(analyzedPalette, result.light);
+    const darkBgCandidates = filterDarkBgCandidates(analyzedPalette, result.dark);
 
     // Show warnings
     const warningBanner = document.getElementById('idtt-warning-banner');
@@ -1490,11 +1776,11 @@
       warningBanner.classList.remove('visible');
     }
 
-    // Render previews
+    // Render previews with background candidates
     document.getElementById('idtt-preview-area').innerHTML = `
       <div class="idtt-preview-container">
-        ${renderPreview(result.light, 'light')}
-        ${renderPreview(result.dark, 'dark')}
+        ${renderPreview(result.light, 'light', lightBgCandidates, lockedLightBgHex)}
+        ${renderPreview(result.dark, 'dark', darkBgCandidates, lockedDarkBgHex)}
       </div>
     `;
 
@@ -1529,6 +1815,32 @@
         }).catch(() => {
           // Silent fail - button just won't show "Copied!"
         });
+      });
+    });
+
+    // Add background swatch click handlers
+    document.querySelectorAll('.idtt-bg-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        const hex = swatch.dataset.hex;
+        const mode = swatch.dataset.mode;
+
+        if (mode === 'light') {
+          // Toggle: click same color to unlock, different color to lock
+          if (lockedLightBgHex === hex) {
+            lockedLightBgHex = null;
+          } else {
+            lockedLightBgHex = hex;
+          }
+        } else if (mode === 'dark') {
+          if (lockedDarkBgHex === hex) {
+            lockedDarkBgHex = null;
+          } else {
+            lockedDarkBgHex = hex;
+          }
+        }
+
+        // Re-render with new locked background
+        computeAndRender();
       });
     });
   }
@@ -1609,8 +1921,10 @@
         // Enable buttons
         document.getElementById('idtt-save-palette-btn').disabled = false;
 
-        // Reset locked primary
+        // Reset locked colors
         lockedPrimaryHex = null;
+        lockedLightBgHex = null;
+        lockedDarkBgHex = null;
 
         // Render
         renderPalette();
