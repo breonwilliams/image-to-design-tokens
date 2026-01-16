@@ -6,8 +6,8 @@
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: Breon Williams
- * Author URI: https://promptlesswp.com
- * License: GPL v2 or later
+ * Author URI: https://breonwilliams.com/
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: image-to-design-tokens
  * Domain Path: /languages

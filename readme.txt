@@ -1,5 +1,5 @@
 === Image to Design Tokens ===
-Contributors: promptlesswp
+Contributors: breonwilliams
 Tags: design tokens, color palette, accessibility, wcag, design system
 Requires at least: 6.0
 Tested up to: 6.9
