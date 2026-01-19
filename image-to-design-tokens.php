@@ -4,7 +4,7 @@
  * Description: Extract color palettes from images and generate accessible design tokens for light and dark modes. All processing happens in your browser - no uploads, no external APIs.
  * Version: 1.0.0
  * Requires at least: 6.0
- * Requires PHP: 8.0
+ * Requires PHP: 7.4
  * Author: Breon Williams
  * Author URI: https://breonwilliams.com/
  * License: GPLv2 or later
