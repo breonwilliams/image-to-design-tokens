@@ -12,6 +12,8 @@ Extract color palettes from images and generate design tokens for light and dark
 
 == Description ==
 
+https://youtu.be/p9uI2luGops
+
 Image to Design Tokens is a privacy-focused tool for designers and developers who need to extract color palettes from images and generate design system tokens.
 
 = Key Features =
